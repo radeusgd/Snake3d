@@ -16,7 +16,7 @@ public class SnakeNode {
 		if(nextNode==null)
 			pos = new Vector3(0,0,0);
 		else
-			pos = nextNode.gridPosition.cpy();//TODO or current?
+			pos = nextNode.previousPosition.cpy();//TODO or current?
 		gridPosition = pos;
 		previousPosition = pos;
 	}
@@ -40,6 +40,10 @@ public class SnakeNode {
 			n.rotation.idt();
 			model.calculateTransforms();
 		//}
+	}
+	
+	public Vector3 getPosition(){
+		return gridPosition;
 	}
 	
 }

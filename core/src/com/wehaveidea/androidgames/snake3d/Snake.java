@@ -81,7 +81,7 @@ public class Snake implements ApplicationListener, InputProcessor {
             gameplay.update(step);
             accumulator -= step;
         }
-        gameplay.interpolate((float)(accumulator/step));
+        //gameplay.interpolate((float)accumulator);//(float)(accumulator/step));//breaks the animation :(
 		
 		//render
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -131,6 +131,9 @@ public class Snake implements ApplicationListener, InputProcessor {
 		if(keycode == Keys.R){
 			resetScene();
 			gameplay = new GameplayManager(this);
+		}
+		if(keycode == Keys.SPACE){
+			gameplay.addNode();
 		}
 		gameplay.rotate(keycode);
 		

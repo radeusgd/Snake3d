@@ -31,38 +31,58 @@ public class GameplayManager {
 	
 	public void update(float dt){
 		if(counter == 0){
-			moves++;
-			//addNode();//just kidding
+			if(moves>3)
+				//update collisions
+				checkCollisions();
+			else
+				moves++;
+			
+			addNode();//
+			
 			counter = 30;
 			anim = 0f;
 			//move nodes
 			for(SnakeNode node : nodes){
 				node.move(direction);//TODO direction
 			}
-			if(moves>3)
-				//update collisions
-				checkCollisions();
-			//else blinking?
+			
 		}
 		counter--;
 		//would do physics
 		interpolate(dt);
 	}
 	
+	private boolean collideObjects(Vector3 o1, Vector3 o2){
+		if(o1.dst2(o2)<1f) return true;
+		return false;
+	}
+	
 	private void checkCollisions(){
 		//TODO check for out of bounds
 		
 		for(SnakeNode node : nodes){
-			//TODO
 			//check for self-collide
+			boolean gameover = false;
 			for(SnakeNode other : nodes){
 				if(node==other) continue;
-				//sphere r=3?
+				if(collideObjects(node.getPosition(), other.getPosition())){
+					System.out.println("GameOver");
+					gameover = true;
+					break;
+				}
+			}
+			if(gameover){
+				game.resetScene();
+				nodes.clear();
+				break;
 			}
 			
 			//check for candys
 			for(Candy candy : candies){
 				//sphere
+				if(collideObjects(node.getPosition(), candy.getPosition())){
+					System.out.println("Scored!");
+				}
 			}
 			
 		}
@@ -72,10 +92,9 @@ public class GameplayManager {
 	
 	public void interpolate(float dt){
 		//update animation counter
-		assert(dt<1f);
-		anim+=dt*0.00013f;//why this value??
+		anim+=1f/30f;//dt*speed;//why this value??
 		if(anim>1f)
-			anim = anim % 1f;//anim-=1f;
+			anim = 1f;//anim-=1f;
 		//update node positions
 		for(SnakeNode node : nodes){
 			node.update(anim);
