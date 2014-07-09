@@ -122,6 +122,10 @@ public class Snake implements ApplicationListener, InputProcessor {
 		instances.add(instance);
 	}
 	
+	public void removeEntity(ModelInstance instance){
+		instances.removeValue(instance, true);
+	}
+	
 	public void resetScene(){
 		instances.clear();
 	}

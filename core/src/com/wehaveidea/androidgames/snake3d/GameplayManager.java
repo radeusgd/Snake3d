@@ -1,16 +1,31 @@
 package com.wehaveidea.androidgames.snake3d;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 public class GameplayManager {
 	public GameplayManager(Snake game) {
 		this.game = game;
+		for(int i=0;i<3;i++)
+			addCandy();
 		for(int i=0;i<3;i++)//init size 3
 			addNode();
+	}
+	
+	float gameSize = 20;//XZ size, Y=4
+	Random random = new Random();
+	
+	public void addCandy(){
+		ModelInstance model = new ModelInstance(game.candyModel);
+		Vector3 pos = new Vector3(random.nextFloat()*(gameSize*speed*0.5f),random.nextFloat()*(gameSize*speed*0.5f),random.nextFloat()*(4f*speed*0.5f));
+		Candy candy = new Candy(pos, model);
+		candies.add(candy);
+		game.addEntity(candy.model);
 	}
 	
 	public void addNode(){
@@ -20,7 +35,6 @@ public class GameplayManager {
 		}
 		ModelInstance model = new ModelInstance(game.snakeModel);
 		SnakeNode s = new SnakeNode(next, model);
-		//TODO positions
 		game.addEntity(model);
 		nodes.add(s);
 		
@@ -37,13 +51,13 @@ public class GameplayManager {
 			else
 				moves++;
 			
-			addNode();//
+			//addNode();//
 			
 			counter = 30;
 			anim = 0f;
 			//move nodes
 			for(SnakeNode node : nodes){
-				node.move(direction);//TODO direction
+				node.move(direction);
 			}
 			
 		}
@@ -52,20 +66,20 @@ public class GameplayManager {
 		interpolate(dt);
 	}
 	
-	private boolean collideObjects(Vector3 o1, Vector3 o2){
-		if(o1.dst2(o2)<1f) return true;
+	private boolean collideObjects(Vector3 o1, Vector3 o2, float r){
+		if(o1.dst2(o2)<r*r) return true;
 		return false;
 	}
 	
 	private void checkCollisions(){
 		//TODO check for out of bounds
-		
+		int scored = 0;
 		for(SnakeNode node : nodes){
 			//check for self-collide
 			boolean gameover = false;
 			for(SnakeNode other : nodes){
 				if(node==other) continue;
-				if(collideObjects(node.getPosition(), other.getPosition())){
+				if(collideObjects(node.getPosition(), other.getPosition(),1f)){
 					System.out.println("GameOver");
 					gameover = true;
 					break;
@@ -80,11 +94,26 @@ public class GameplayManager {
 			//check for candys
 			for(Candy candy : candies){
 				//sphere
-				if(collideObjects(node.getPosition(), candy.getPosition())){
-					System.out.println("Scored!");
+				if(collideObjects(node.getPosition(), candy.getPosition(),1.5f+2.5f)){
+					scored++;
+					candy.mark();
 				}
 			}
-			
+		}
+		if(scored>0){
+			System.out.println("Scored!");
+			addNode();
+			Array<Candy> toRemove = new Array<Candy>();
+			for(Candy candy : candies){
+				if(!candy.shouldDestroy()) continue;
+				toRemove.add(candy);
+				//TODO score
+			}
+			for(Candy candy : toRemove){
+				candies.remove(candy);
+				game.removeEntity(candy.model);
+				addCandy();
+			}
 		}
 	}
 	
