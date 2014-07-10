@@ -83,11 +83,6 @@ public class GameplayManager {
 		return false;
 	}
 	
-	private void gameOver(){
-		game.resetScene();
-		nodes.clear();
-	}
-	
 	private void checkCollisions(){
 		//check for out of bounds
 		if(!nodes.isEmpty()){
@@ -95,7 +90,7 @@ public class GameplayManager {
 			if(head.getPosition().y<0f || head.getPosition().y>6f
 				|| head.getPosition().x<-8f || head.getPosition().x>8f
 				|| head.getPosition().z<-8f || head.getPosition().z>8f){
-				gameOver();
+				game.gameOver();
 				return;
 			}
 		}
@@ -112,7 +107,7 @@ public class GameplayManager {
 				}
 			}
 			if(gameover){
-				gameOver();
+				game.gameOver();
 				break;
 			}
 			

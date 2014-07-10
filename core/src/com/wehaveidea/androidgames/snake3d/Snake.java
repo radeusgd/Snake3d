@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class Snake implements ApplicationListener, InputProcessor {
 	
-	GameplayManager gameplay;
+	GameplayManager gameplay = null;
 	public Model snakeModel;
 	public Model candyModel;
 	public Model[] planes = new Model[4];
@@ -96,7 +96,20 @@ public class Snake implements ApplicationListener, InputProcessor {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 		
+		//TODO read highscore
+		
+		//gameplay = new GameplayManager(this);
+	}
+	
+	void startGame(){
+		score=0;
+		resetScene();
 		gameplay = new GameplayManager(this);
+	}
+	
+	public void gameOver(){
+		resetScene();
+		gameplay = null;
 	}
 
 	@Override
@@ -111,7 +124,8 @@ public class Snake implements ApplicationListener, InputProcessor {
         currentTime = newTime;
 
         while (accumulator >= step) {
-            gameplay.update(step);
+        	if(gameplay!=null)
+        		gameplay.update(step);
             accumulator -= step;
         }
         //gameplay.interpolate((float)accumulator);//(float)(accumulator/step));//breaks the animation :(
@@ -125,8 +139,11 @@ public class Snake implements ApplicationListener, InputProcessor {
         modelBatch.end();
         
         spriteBatch.begin();
-        font.setScale(2f);
+        //font.setScale(2f);
         font.draw(spriteBatch, "Score: "+Integer.toString(score), 50f, 50f);
+        if(gameplay==null){
+        	font.draw(spriteBatch, "Tap to play", Gdx.graphics.getWidth()*0.5f, Gdx.graphics.getHeight()*0.5f);
+        }
         spriteBatch.end();
 	}
 
@@ -170,14 +187,17 @@ public class Snake implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if(keycode == Keys.R){
-			resetScene();
-			gameplay = new GameplayManager(this);
+		if(gameplay!=null){
+			/*if(keycode == Keys.R){//DEBUG only
+				resetScene();
+				gameplay = new GameplayManager(this);
+			}*/
+			if(keycode == Keys.SPACE){
+				gameplay.addNode();
+			}
+			gameplay.rotate(keycode);
+			return true;
 		}
-		if(keycode == Keys.SPACE){
-			gameplay.addNode();
-		}
-		gameplay.rotate(keycode);
 		
 		return false;
 	}
@@ -196,8 +216,24 @@ public class Snake implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
+		if(gameplay==null){
+			startGame();
+		}else{
+			if(screenX<Gdx.graphics.getWidth()*0.5f){//left
+				if(screenY<Gdx.graphics.getHeight()*0.5f){//top
+					gameplay.rotate(Keys.UP);
+				}else{//bottom
+					gameplay.rotate(Keys.LEFT);
+				}
+			}else{//right
+				if(screenY<Gdx.graphics.getHeight()*0.5f){//top
+					gameplay.rotate(Keys.RIGHT);
+				}else{//bottom
+					gameplay.rotate(Keys.DOWN);
+				}
+			}
+		}
+		return true;
 	}
 
 	@Override
