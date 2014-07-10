@@ -7,6 +7,7 @@ public class Candy {
 	public Candy(Vector3 p, ModelInstance mdl) {
 		model = mdl;
 		pos = p;
+		model.transform.set(model.nodes.get(0).globalTransform);
 		model.nodes.get(0).translation.set(pos);
 		model.calculateTransforms();
 	}

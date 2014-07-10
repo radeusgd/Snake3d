@@ -14,7 +14,7 @@ public class SnakeNode {
 		nextNode = next;
 		Vector3 pos;
 		if(nextNode==null)
-			pos = new Vector3(0,0,0);
+			pos = new Vector3(0f,1.5f,0f);
 		else
 			pos = nextNode.previousPosition.cpy();
 		gridPosition = pos;

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -25,6 +26,7 @@ public class Snake implements ApplicationListener, InputProcessor {
 	GameplayManager gameplay;
 	public Model snakeModel;
 	public Model candyModel;
+	public Model[] planes = new Model[4];
 	ModelBatch modelBatch;
 	PerspectiveCamera cam;
 	Environment environment;
@@ -43,7 +45,9 @@ public class Snake implements ApplicationListener, InputProcessor {
 		
 		ModelBuilder modelBuilder = new ModelBuilder();
 		
-		snakeModel = modelBuilder.createSphere(5, 5, 5,
+		float gameArea = 15f*2f;
+		
+		snakeModel = modelBuilder.createSphere(3,3,3,
 				6, 6,
 				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
 				Usage.Position | Usage.Normal);
@@ -52,8 +56,26 @@ public class Snake implements ApplicationListener, InputProcessor {
 				new Material(ColorAttribute.createDiffuse(Color.RED)),
 				Usage.Position | Usage.Normal);
 		
+		planes[0] = modelBuilder.createBox(gameArea, 0.1f, gameArea,
+				new Material(ColorAttribute.createDiffuse(Color.MAROON)),
+				Usage.Position | Usage.Normal);
+		
+		planes[1] = modelBuilder.createBox(gameArea, 0.1f, gameArea,
+				new Material(ColorAttribute.createDiffuse(new Color(0.2f,1f,0.4f,0.6f))),
+				Usage.Position | Usage.Normal);
+		
+		planes[2] = modelBuilder.createBox(gameArea, 4f*1.5f*2f, 0.1f,
+				new Material(ColorAttribute.createDiffuse(Color.BLUE)),
+				Usage.Position | Usage.Normal);
+		
+		planes[3] = modelBuilder.createBox(0.1f, 4f*1.5f*2f, gameArea,
+				new Material(ColorAttribute.createDiffuse(Color.BLUE)),
+				Usage.Position | Usage.Normal);
+		
+		planes[1].materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+		
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(30f, 30f, 30f);
+		cam.position.set(20f, 20f, 20f);
 		cam.lookAt(0,0,0);
 		cam.near = 1f;
 		cam.far = 300f;
@@ -71,7 +93,7 @@ public class Snake implements ApplicationListener, InputProcessor {
 		//update
 		double newTime = TimeUtils.millis() / 1000.0;
         double frameTime = Math.min(newTime - currentTime, 0.25);
-        float deltaTime = (float)frameTime;
+        //float deltaTime = (float)frameTime;
         
         accumulator+=frameTime;
 

@@ -11,18 +11,33 @@ import com.badlogic.gdx.utils.Array;
 public class GameplayManager {
 	public GameplayManager(Snake game) {
 		this.game = game;
-		for(int i=0;i<3;i++)
+		//for(int i=0;i<3;i++)
 			addCandy();
 		for(int i=0;i<3;i++)//init size 3
 			addNode();
+		ModelInstance [] planes = new ModelInstance[4];
+		for(int i=0;i<4;i++){
+			planes[i] = new ModelInstance(game.planes[i]);
+			game.addEntity(planes[i]);
+		}
+		planes[0].nodes.get(0).translation.set(0f,0f,0f);
+		planes[1].nodes.get(0).translation.set(0f,4f*1.5f,0f);
+		planes[2].nodes.get(0).translation.set(0f,4f*1.5f,-15f);
+		planes[3].nodes.get(0).translation.set(-15f,4f*1.5f,0f);
+		for(int i=0;i<4;i++){
+			planes[i].calculateTransforms();
+		}
 	}
 	
-	float gameSize = 20;//XZ size, Y=4
+	float gameSize = 10;//XZ size, Y=4
 	Random random = new Random();
 	
 	public void addCandy(){
 		ModelInstance model = new ModelInstance(game.candyModel);
-		Vector3 pos = new Vector3(random.nextFloat()*(gameSize*speed*0.5f),random.nextFloat()*(gameSize*speed*0.5f),random.nextFloat()*(4f*speed*0.5f));
+		Vector3 pos = new Vector3(random.nextFloat()*(gameSize*speed*0.5f)+0.5f*gameSize,random.nextFloat()*(gameSize*speed*0.5f)+0.5f*gameSize,random.nextFloat()*(4f*speed*0.5f));
+		pos.x -= pos.x % speed;
+		pos.y -= pos.y % speed;
+		pos.z -= pos.z % speed;
 		Candy candy = new Candy(pos, model);
 		candies.add(candy);
 		game.addEntity(candy.model);
@@ -122,7 +137,7 @@ public class GameplayManager {
 	public void interpolate(float dt){
 		//update animation counter
 		anim+=1f/30f;//dt*speed;//why this value??
-		if(anim>1f)
+		//if(anim>1f)
 			anim = 1f;//anim-=1f;
 		//update node positions
 		for(SnakeNode node : nodes){
