@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -31,6 +33,11 @@ public class Snake implements ApplicationListener, InputProcessor {
 	PerspectiveCamera cam;
 	Environment environment;
 	
+	SpriteBatch spriteBatch;
+	BitmapFont font;
+	
+	public int score = 0;
+	
 	private double accumulator;
     private double currentTime;
     private float step = 1.0f / 60.0f;
@@ -43,11 +50,15 @@ public class Snake implements ApplicationListener, InputProcessor {
 		
 		modelBatch = new ModelBatch();
 		
+		spriteBatch = new SpriteBatch();
+		
+		font = new BitmapFont();
+		
 		ModelBuilder modelBuilder = new ModelBuilder();
 		
-		float gameArea = 15f*2f;
+		float gameArea = 16.5f*2f;
 		
-		snakeModel = modelBuilder.createSphere(3,3,3,
+		snakeModel = modelBuilder.createSphere(4,4,4,
 				6, 6,
 				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
 				Usage.Position | Usage.Normal);
@@ -61,7 +72,7 @@ public class Snake implements ApplicationListener, InputProcessor {
 				Usage.Position | Usage.Normal);
 		
 		planes[1] = modelBuilder.createBox(gameArea, 0.1f, gameArea,
-				new Material(ColorAttribute.createDiffuse(new Color(0.2f,1f,0.4f,0.6f))),
+				new Material(ColorAttribute.createDiffuse(new Color(0.2f,1f,0.4f,0.4f))),
 				Usage.Position | Usage.Normal);
 		
 		planes[2] = modelBuilder.createBox(gameArea, 4f*1.5f*2f, 0.1f,
@@ -75,7 +86,7 @@ public class Snake implements ApplicationListener, InputProcessor {
 		planes[1].materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
 		
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(20f, 20f, 20f);
+		cam.position.set(20f, 28f, 26f);
 		cam.lookAt(0,0,0);
 		cam.near = 1f;
 		cam.far = 300f;
@@ -112,6 +123,11 @@ public class Snake implements ApplicationListener, InputProcessor {
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
         modelBatch.end();
+        
+        spriteBatch.begin();
+        font.setScale(2f);
+        font.draw(spriteBatch, "Score: "+Integer.toString(score), 50f, 50f);
+        spriteBatch.end();
 	}
 
 	@Override

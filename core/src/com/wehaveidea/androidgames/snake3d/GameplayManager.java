@@ -22,22 +22,19 @@ public class GameplayManager {
 		}
 		planes[0].nodes.get(0).translation.set(0f,0f,0f);
 		planes[1].nodes.get(0).translation.set(0f,4f*1.5f,0f);
-		planes[2].nodes.get(0).translation.set(0f,4f*1.5f,-15f);
-		planes[3].nodes.get(0).translation.set(-15f,4f*1.5f,0f);
+		planes[2].nodes.get(0).translation.set(0f,4f*1.5f,-16.5f);
+		planes[3].nodes.get(0).translation.set(-16.5f,4f*1.5f,0f);
 		for(int i=0;i<4;i++){
 			planes[i].calculateTransforms();
 		}
 	}
 	
-	float gameSize = 10;//XZ size, Y=4
+	int gameSize = 10;//XZ size, Y=4
 	Random random = new Random();
 	
 	public void addCandy(){
 		ModelInstance model = new ModelInstance(game.candyModel);
-		Vector3 pos = new Vector3(random.nextFloat()*(gameSize*speed*0.5f)+0.5f*gameSize,random.nextFloat()*(gameSize*speed*0.5f)+0.5f*gameSize,random.nextFloat()*(4f*speed*0.5f));
-		pos.x -= pos.x % speed;
-		pos.y -= pos.y % speed;
-		pos.z -= pos.z % speed;
+		Vector3 pos = new Vector3((random.nextInt(gameSize)-0.5f*gameSize)*speed,(random.nextInt(4))*2f*speed,(random.nextInt(gameSize)-0.5f*gameSize)*speed);
 		Candy candy = new Candy(pos, model);
 		candies.add(candy);
 		game.addEntity(candy.model);
@@ -86,8 +83,22 @@ public class GameplayManager {
 		return false;
 	}
 	
+	private void gameOver(){
+		game.resetScene();
+		nodes.clear();
+	}
+	
 	private void checkCollisions(){
-		//TODO check for out of bounds
+		//check for out of bounds
+		if(!nodes.isEmpty()){
+			SnakeNode head = nodes.get(0);
+			if(head.getPosition().y<0f || head.getPosition().y>6f
+				|| head.getPosition().x<-8f || head.getPosition().x>8f
+				|| head.getPosition().z<-8f || head.getPosition().z>8f){
+				gameOver();
+				return;
+			}
+		}
 		int scored = 0;
 		for(SnakeNode node : nodes){
 			//check for self-collide
@@ -101,15 +112,14 @@ public class GameplayManager {
 				}
 			}
 			if(gameover){
-				game.resetScene();
-				nodes.clear();
+				gameOver();
 				break;
 			}
 			
 			//check for candys
 			for(Candy candy : candies){
 				//sphere
-				if(collideObjects(node.getPosition(), candy.getPosition(),1.5f+2.5f)){
+				if(collideObjects(node.getPosition(), candy.getPosition(),5f)){
 					scored++;
 					candy.mark();
 				}
@@ -118,6 +128,7 @@ public class GameplayManager {
 		if(scored>0){
 			System.out.println("Scored!");
 			addNode();
+			game.score += scored;
 			Array<Candy> toRemove = new Array<Candy>();
 			for(Candy candy : candies){
 				if(!candy.shouldDestroy()) continue;
@@ -137,7 +148,7 @@ public class GameplayManager {
 	public void interpolate(float dt){
 		//update animation counter
 		anim+=1f/30f;//dt*speed;//why this value??
-		//if(anim>1f)
+		if(anim>1f)
 			anim = 1f;//anim-=1f;
 		//update node positions
 		for(SnakeNode node : nodes){
